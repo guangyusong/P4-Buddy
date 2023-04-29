@@ -11,9 +11,11 @@ export function activate(context: vscode.ExtensionContext) {
 function generateDescriptionFromP4Code(p4Code: string): string {
 	const parserRegex = /parser\s+(\w+)\s*\(/g;
 	const controlRegex = /control\s+(\w+)\s*\(/g;
+	const tableRegex = /table\s+(\w+)\s*\{/g;
 
 	let parsers: string[] = [];
 	let controls: string[] = [];
+	let tables: string[] = [];
 
 	let match;
 	while ((match = parserRegex.exec(p4Code)) !== null) {
@@ -21,6 +23,9 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 	}
 	while ((match = controlRegex.exec(p4Code)) !== null) {
 		controls.push(match[1]);
+	}
+	while ((match = tableRegex.exec(p4Code)) !== null) {
+		tables.push(match[1]);
 	}
 
 	let description = "The system consists of the following components:\n";
@@ -36,7 +41,12 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 			description += `  ◦ ${control}\n`;
 		}
 	}
-	description += "\nThese components work together to process incoming and outgoing packets in a P4 network.";
+	if (tables.length > 0) {
+		description += "• Tables:\n";
+		for (const table of tables) {
+			description += `  ◦ ${table}\n`;
+		}
+	}
 
 	return description;
 }
@@ -60,10 +70,10 @@ async function generateSystemDescription() {
 		const description = generateDescriptionFromP4Code(p4Code);
 
 		const panel = vscode.window.createWebviewPanel(
-			'plantUMLPreview', // Identifies the type of the webview
-			'System Description', // Title of the panel displayed to the user
-			vscode.ViewColumn.Beside, // Editor column to show the new webview panel
-			{} // Webview options
+			'plantUMLPreview',
+			'System Description',
+			vscode.ViewColumn.Beside,
+			{}
 		);
 
 		panel.webview.html = `
@@ -99,4 +109,4 @@ async function generateSystemDescription() {
 	} catch (error: any) {
 		vscode.window.showErrorMessage(`Error generating system description: ${error.message}`);
 	}
-}	
+}
