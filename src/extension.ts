@@ -11,11 +11,9 @@ export function activate(context: vscode.ExtensionContext) {
 function generateDescriptionFromP4Code(p4Code: string): string {
 	const parserRegex = /parser\s+(\w+)\s*\(/g;
 	const controlRegex = /control\s+(\w+)\s*\(/g;
-	const structRegex = /struct\s+(\w+)\s*{/g;
 
 	let parsers: string[] = [];
 	let controls: string[] = [];
-	let structs: string[] = [];
 
 	let match;
 	while ((match = parserRegex.exec(p4Code)) !== null) {
@@ -23,9 +21,6 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 	}
 	while ((match = controlRegex.exec(p4Code)) !== null) {
 		controls.push(match[1]);
-	}
-	while ((match = structRegex.exec(p4Code)) !== null) {
-		structs.push(match[1]);
 	}
 
 	let description = "The system consists of the following components:\n";
@@ -39,12 +34,6 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 		description += "• Controls:\n";
 		for (const control of controls) {
 			description += `  ◦ ${control}\n`;
-		}
-	}
-	if (structs.length > 0) {
-		description += "• Structs:\n";
-		for (const struct of structs) {
-			description += `  ◦ ${struct}\n`;
 		}
 	}
 	description += "\nThese components work together to process incoming and outgoing packets in a P4 network.";
