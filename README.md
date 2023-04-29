@@ -1,6 +1,6 @@
-# p4-plantuml-generator README
+# p4-analyst README
 
-This is the README for your extension "p4-plantuml-generator". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "p4-analyst". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 

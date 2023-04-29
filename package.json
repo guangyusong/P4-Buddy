@@ -1,6 +1,6 @@
 {
-  "name": "p4-plantuml-generator",
-  "displayName": "p4-plantuml-generator",
+  "name": "p4-analyst",
+  "displayName": "p4-analyst",
   "description": "Generates system diagrams from P4 code using PlantUML",
   "version": "0.0.1",
   "engines": {
@@ -14,7 +14,7 @@
   "contributes": {
     "commands": [
       {
-        "command": "p4-plantuml-generator.understandP4Code",
+        "command": "p4-analyst.understandP4Code",
         "title": "Analyze P4 Code"
       }
     ]
@@ -22,7 +22,7 @@
   "menus": {
     "editor/context": [
       {
-        "command": "p4-plantuml-generator.understandP4Code",
+        "command": "p4-analyst.understandP4Code",
         "when": "editorLangId == p4"
       }
     ]

@@ -66,7 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
 	};
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('p4-plantuml-generator.understandP4Code', () => {
+		vscode.commands.registerCommand('p4-analyst.understandP4Code', () => {
 			updateSystemDescription();
 		})
 	);
