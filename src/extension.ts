@@ -135,17 +135,35 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 		}
 	}
 
-	let description = "The system consists of the following components:\n";
+	let description = "<p>The system consists of the following components:</p>";
 	for (const control in controls) {
-		description += `• Control: ${control}\n`;
+		description += `<h3>Control: ${control}</h3>`;
 		if (Object.keys(controls[control].tables).length > 0) {
-			description += "  ◦ Tables:\n";
+			description += "<h4>Tables:</h4>";
 			for (const table in controls[control].tables) {
-				description += `    ▪ ${table}\n`;
-				description += `      ▫ Key: ${controls[control].tables[table].key.join(', ')}\n`;
-				description += `      ▫ Actions: ${controls[control].tables[table].actions.join(', ')}\n`;
-				description += `      ▫ Size: ${controls[control].tables[table].size}\n`;
-				description += `      ▫ Default Action: ${controls[control].tables[table].default_action}\n`;
+				description += `<h5>${table}</h5>`;
+				description += `<table border="1" cellspacing="0" cellpadding="4">`;
+				description += `  <tr>`;
+				description += `    <th>Property</th>`;
+				description += `    <th>Value</th>`;
+				description += `  </tr>`;
+				description += `  <tr>`;
+				description += `    <td>Key</td>`;
+				description += `    <td>${controls[control].tables[table].key.join(', ')}</td>`;
+				description += `  </tr>`;
+				description += `  <tr>`;
+				description += `    <td>Actions</td>`;
+				description += `    <td>${controls[control].tables[table].actions.join(', ')}</td>`;
+				description += `  </tr>`;
+				description += `  <tr>`;
+				description += `    <td>Size</td>`;
+				description += `    <td>${controls[control].tables[table].size}</td>`;
+				description += `  </tr>`;
+				description += `  <tr>`;
+				description += `    <td>Default Action</td>`;
+				description += `    <td>${controls[control].tables[table].default_action}</td>`;
+				description += `  </tr>`;
+				description += `</table>`;
 			}
 		}
 	}
