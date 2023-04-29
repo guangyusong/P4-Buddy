@@ -1,9 +1,81 @@
 import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
+	let panel: vscode.WebviewPanel | undefined;
+
+	const updateSystemDescription = () => {
+		const editor = vscode.window.activeTextEditor;
+		if (!editor) {
+			vscode.window.showErrorMessage('No active editor found.');
+			return;
+		}
+
+		const document = editor.document;
+		if (document.languageId !== 'p4') {
+			vscode.window.showErrorMessage('Active document is not a P4 file.');
+			return;
+		}
+
+		const p4Code = document.getText();
+
+		try {
+			const description = generateDescriptionFromP4Code(p4Code);
+
+			if (!panel) {
+				panel = vscode.window.createWebviewPanel(
+					'plantUMLPreview',
+					'System Description',
+					vscode.ViewColumn.Beside,
+					{}
+				);
+			}
+
+			panel.webview.html = `
+			<!DOCTYPE html>
+			<html lang="en">
+			  <head>
+				<meta charset="UTF-8">
+				<meta http-equiv="X-UA-Compatible" content="IE=edge">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>System Description</title>
+				<style>
+				  body {
+					font-family: sans-serif;
+				  }
+				  ul {
+					list-style: disc;
+					padding-left: 20px;
+				  }
+				  li {
+					white-space: pre-wrap;
+				  }
+				</style>
+			  </head>
+			  <body>
+				<ul>
+				  <li>${description}</li>
+				</ul>
+			  </body>
+			</html>
+		  `;
+
+			vscode.window.showInformationMessage('System description updated successfully.');
+		} catch (error: any) {
+			vscode.window.showErrorMessage(`Error generating system description: ${error.message}`);
+		}
+	};
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand('p4-plantuml-generator.understandP4Code', () => {
-			generateSystemDescription();
+			updateSystemDescription();
+		})
+	);
+
+	context.subscriptions.push(
+		vscode.workspace.onDidSaveTextDocument((document) => {
+			if (document.languageId === 'p4') {
+				updateSystemDescription();
+			}
 		})
 	);
 }
@@ -79,65 +151,4 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 	}
 
 	return description;
-}
-
-
-async function generateSystemDescription() {
-	const editor = vscode.window.activeTextEditor;
-	if (!editor) {
-		vscode.window.showErrorMessage('No active editor found.');
-		return;
-	}
-
-	const document = editor.document;
-	if (document.languageId !== 'p4') {
-		vscode.window.showErrorMessage('Active document is not a P4 file.');
-		return;
-	}
-
-	const p4Code = document.getText();
-
-	try {
-		const description = generateDescriptionFromP4Code(p4Code);
-
-		const panel = vscode.window.createWebviewPanel(
-			'plantUMLPreview',
-			'System Description',
-			vscode.ViewColumn.Beside,
-			{}
-		);
-
-		panel.webview.html = `
-		<!DOCTYPE html>
-		<html lang="en">
-		  <head>
-			<meta charset="UTF-8">
-			<meta http-equiv="X-UA-Compatible" content="IE=edge">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title>System Description</title>
-			<style>
-			  body {
-				font-family: sans-serif;
-			  }
-			  ul {
-				list-style: disc;
-				padding-left: 20px;
-			  }
-			  li {
-				white-space: pre-wrap;
-			  }
-			</style>
-		  </head>
-		  <body>
-			<ul>
-			  <li>${description}</li>
-			</ul>
-		  </body>
-		</html>
-	  `;
-
-		vscode.window.showInformationMessage('System description generated successfully.');
-	} catch (error: any) {
-		vscode.window.showErrorMessage(`Error generating system description: ${error.message}`);
-	}
 }
