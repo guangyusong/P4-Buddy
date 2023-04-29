@@ -9,47 +9,50 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 function generateDescriptionFromP4Code(p4Code: string): string {
-	const parserRegex = /parser\s+(\w+)\s*\(/g;
-	const controlRegex = /control\s+(\w+)\s*\(/g;
-	const tableRegex = /table\s+(\w+)\s*\{/g;
+	const controlRegex = /control\s+(\w+)\s*\(/;
+	const tableRegex = /table\s+(\w+)\s*\{/;
+	const actionRegex = /action\s+(\w+)\s*\(/;
 
-	let parsers: string[] = [];
-	let controls: string[] = [];
-	let tables: string[] = [];
+	let controls: { [key: string]: { tables: string[]; actions: string[] } } = {};
 
-	let match;
-	while ((match = parserRegex.exec(p4Code)) !== null) {
-		parsers.push(match[1]);
-	}
-	while ((match = controlRegex.exec(p4Code)) !== null) {
-		controls.push(match[1]);
-	}
-	while ((match = tableRegex.exec(p4Code)) !== null) {
-		tables.push(match[1]);
+	let lines = p4Code.split('\n');
+	let currentControl = '';
+
+	for (const line of lines) {
+		let controlMatch = controlRegex.exec(line);
+		let tableMatch = tableRegex.exec(line);
+		let actionMatch = actionRegex.exec(line);
+
+		if (controlMatch) {
+			currentControl = controlMatch[1];
+			controls[currentControl] = { tables: [], actions: [] };
+		} else if (tableMatch && currentControl) {
+			controls[currentControl].tables.push(tableMatch[1]);
+		} else if (actionMatch && currentControl) {
+			controls[currentControl].actions.push(actionMatch[1]);
+		}
 	}
 
 	let description = "The system consists of the following components:\n";
-	if (parsers.length > 0) {
-		description += "• Parsers:\n";
-		for (const parser of parsers) {
-			description += `  ◦ ${parser}\n`;
+	for (const control in controls) {
+		description += `• Control: ${control}\n`;
+		if (controls[control].tables.length > 0) {
+			description += "  ◦ Tables:\n";
+			for (const table of controls[control].tables) {
+				description += `    ▪ ${table}\n`;
+			}
 		}
-	}
-	if (controls.length > 0) {
-		description += "• Controls:\n";
-		for (const control of controls) {
-			description += `  ◦ ${control}\n`;
-		}
-	}
-	if (tables.length > 0) {
-		description += "• Tables:\n";
-		for (const table of tables) {
-			description += `  ◦ ${table}\n`;
+		if (controls[control].actions.length > 0) {
+			description += "  ◦ Actions:\n";
+			for (const action of controls[control].actions) {
+				description += `    ▪ ${action}\n`;
+			}
 		}
 	}
 
 	return description;
 }
+
 
 async function generateSystemDescription() {
 	const editor = vscode.window.activeTextEditor;
