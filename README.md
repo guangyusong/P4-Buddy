@@ -1,71 +1,40 @@
-# p4-buddy README
+# P4 Buddy VSCode Extension
 
-This is the README for your extension "p4-buddy". After writing up a brief description, we recommend including the following sections.
+P4 Buddy is a Visual Studio Code extension designed to assist users in understanding and debugging P4 code. The extension provides an automatically generated system description for P4 programs and leverages OpenAI's GPT-3 to provide detailed technical answers for any P4-related questions.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- Automatically generates a system description for P4 programs
+- Utilizes OpenAI's GPT-3 to provide technical answers to P4-related questions
+- Updates the system description every time a P4 document is saved
+- Provides an interactive debugging experience with OpenAI API integration
 
-For example if there is an image subfolder under your extension project workspace:
+## Installation
 
-\!\[feature X\]\(images/feature-x.png\)
+1. Download the P4 Buddy VSCode extension from the Visual Studio Code Marketplace.
+2. Install the extension.
+3. Provide your OpenAI API key when prompted.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## Usage
 
-## Requirements
+1. Open a P4 file in Visual Studio Code.
+2. Click on the P4 Buddy icon in the activity bar or run the "Start P4 Buddy" command from the command palette.
+3. A new panel with the system description will open next to your P4 code.
+4. Enter any P4-related questions into the input box and click the "Debug this!" button to receive a technical answer from OpenAI's GPT-3.
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## Example
 
-## Extension Settings
+Let's assume you have a P4 file open in Visual Studio Code. To understand the code and get a system description:
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+1. Click on the P4 Buddy icon in the activity bar or run the "Start P4 Buddy" command from the command palette.
+2. A new panel with the system description will open next to your P4 code, displaying the control structures and tables with their properties.
+3. If you encounter an issue or have a question related to your P4 code, enter it into the input box and click the "Debug this!" button.
+4. The extension will communicate with OpenAI's GPT-3 and provide a technical answer for your question.
 
-For example:
+## Contributing
 
-This extension contributes the following settings:
+Feel free to submit issues, bug reports, or feature requests on the GitHub repository.
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+## License
 
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+This project is licensed under the MIT License.
