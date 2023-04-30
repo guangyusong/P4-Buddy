@@ -17,7 +17,17 @@
         "command": "p4-analyst.understandP4Code",
         "title": "Analyze P4 Code"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "OpenAI",
+      "properties": {
+        "openAI.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "OpenAI API Key"
+        }
+      }
+    }
   },
   "menus": {
     "editor/context": [

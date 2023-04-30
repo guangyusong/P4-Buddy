@@ -2,19 +2,40 @@ import * as vscode from 'vscode';
 
 import { Configuration, OpenAIApi } from 'openai';
 
-const configuration = new Configuration({
-	apiKey: 'YOUR_API_KEY',
-});
-const openai = new OpenAIApi(configuration);
-
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 	let panel: vscode.WebviewPanel | undefined;
 
+	// Check if API key is already saved
+	const apiKey = vscode.workspace.getConfiguration('openAI').get('apiKey');
+
+	if (!apiKey) {
+		// Prompt the user for the API key
+		const inputApiKey = await vscode.window.showInputBox({
+			prompt: 'Please enter your OpenAI API Key:',
+			ignoreFocusOut: true,
+		});
+
+		// Save the API key
+		if (inputApiKey) {
+			await vscode.workspace.getConfiguration('openAI').update('apiKey', inputApiKey, vscode.ConfigurationTarget.Global);
+		} else {
+			vscode.window.showErrorMessage('OpenAI API key is required to use this extension.');
+			return;
+		}
+	}
+
+	const configuration = new Configuration({
+		apiKey: apiKey as string,
+	});
+	const openai = new OpenAIApi(configuration);
+
 	const callOpenAI = async (input: string) => {
+		const pre = `This is an error from a P4 program. Please provide a technical answer in 100 words or less: `;
+
 		try {
 			const completion = await openai.createCompletion({
 				model: "text-davinci-003",
-				prompt: input,
+				prompt: pre + input,
 				max_tokens: 2048,
 			});
 			return completion.data.choices[0].text;
@@ -103,13 +124,16 @@ export function activate(context: vscode.ExtensionContext) {
                   }
                 </style>
               </head>
-              <body>
-				<input id="user-input" type="text" placeholder="Enter text here">
+			  <body>
+			  <div>
+				<textarea id="user-input" rows="3" cols="50" placeholder="Enter text here"></textarea>
+				<br>
 				<button onclick="callOpenAI()">Debug this!</button>
-				<p id="display-output"></p>
-                  ${description}
-                <script>${script}</script>
-              </body>
+			  </div>
+			  <p id="display-output"></p>
+			  ${description}
+			  <script>${script}</script>
+			</body>			
             </html>
           `;
 
@@ -189,7 +213,7 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 		}
 	}
 
-	let description = "<h1>The system consists of the following components:</h1>";
+	let description = "<h1>System components:</h1>";
 	for (const control in controls) {
 		description += `<h3>Control: ${control}</h3>`;
 		if (Object.keys(controls[control].tables).length > 0) {
