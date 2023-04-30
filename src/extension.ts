@@ -26,38 +26,49 @@ export function activate(context: vscode.ExtensionContext) {
 					'plantUMLPreview',
 					'System Description',
 					vscode.ViewColumn.Beside,
-					{}
+					{
+						enableScripts: true, // Enable JavaScript in the WebView
+					}
 				);
 			}
 
+			const script = `
+                function displayUserInput() {
+                    const userInput = document.getElementById('user-input').value;
+                    document.getElementById('display-input').innerHTML = userInput;
+                }
+            `;
+
 			panel.webview.html = `
-			<!DOCTYPE html>
-			<html lang="en">
-			  <head>
-				<meta charset="UTF-8">
-				<meta http-equiv="X-UA-Compatible" content="IE=edge">
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<title>System Description</title>
-				<style>
-				  body {
-					font-family: sans-serif;
-				  }
-				  ul {
-					list-style: disc;
-					padding-left: 20px;
-				  }
-				  li {
-					white-space: pre-wrap;
-				  }
-				</style>
-			  </head>
-			  <body>
-				<ul>
-				  <li>${description}</li>
-				</ul>
-			  </body>
-			</html>
-		  `;
+            <!DOCTYPE html>
+            <html lang="en">
+              <head>
+                <meta charset="UTF-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>System Description</title>
+                <style>
+                  body {
+                    font-family: sans-serif;
+                  }
+                  ul {
+                    list-style: disc;
+                    padding-left: 20px;
+                  }
+                  li {
+                    white-space: pre-wrap;
+                  }
+                </style>
+              </head>
+              <body>
+                <input id="user-input" type="text" placeholder="Enter text here">
+                <button onclick="displayUserInput()">Debug this</button>
+                <p id="display-input"></p>
+                  ${description}
+                <script>${script}</script>
+              </body>
+            </html>
+          `;
 
 			vscode.window.showInformationMessage('System description updated successfully.');
 		} catch (error: any) {
@@ -135,7 +146,7 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 		}
 	}
 
-	let description = "<p>The system consists of the following components:</p>";
+	let description = "<h1>The system consists of the following components:</h1>";
 	for (const control in controls) {
 		description += `<h3>Control: ${control}</h3>`;
 		if (Object.keys(controls[control].tables).length > 0) {
