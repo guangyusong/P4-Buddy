@@ -204,7 +204,9 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 				if (line.includes('}')) {
 					parsingActions = false;
 				}
-			} else {
+			}
+
+			if (!parsingKeys && !parsingActions) {
 				let sizeMatch = line.match(/size\s*=\s*(\d+)\s*;/);
 				let defaultActionMatch = line.match(/default_action\s*=\s*(\w+)\s*;/);
 
