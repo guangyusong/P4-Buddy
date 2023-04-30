@@ -65,7 +65,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
 			if (!panel) {
 				panel = vscode.window.createWebviewPanel(
-					'p4-analyst',
+					'p4-buddy',
 					'System Description',
 					vscode.ViewColumn.Beside,
 					{
@@ -144,7 +144,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	};
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('p4-analyst.understandP4Code', () => {
+		vscode.commands.registerCommand('p4-buddy.understandP4Code', () => {
 			updateSystemDescription();
 		})
 	);

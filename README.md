@@ -1,6 +1,6 @@
-# p4-analyst README
+# p4-buddy README
 
-This is the README for your extension "p4-analyst". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "p4-buddy". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 

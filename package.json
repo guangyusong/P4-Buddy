@@ -1,6 +1,6 @@
 {
-  "name": "p4-analyst",
-  "displayName": "p4-analyst",
+  "name": "p4-buddy",
+  "displayName": "p4-buddy",
   "description": "Generates system diagrams from P4 code using PlantUML",
   "version": "0.0.1",
   "engines": {
@@ -14,8 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "p4-analyst.understandP4Code",
-        "title": "Analyze P4 Code"
+        "command": "p4-buddy.understandP4Code",
+        "title": "Start P4 Buddy"
       }
     ],
     "configuration": {
@@ -32,7 +32,7 @@
   "menus": {
     "editor/context": [
       {
-        "command": "p4-analyst.understandP4Code",
+        "command": "p4-buddy.understandP4Code",
         "when": "editorLangId == p4"
       }
     ]
