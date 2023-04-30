@@ -161,10 +161,6 @@ export async function activate(context: vscode.ExtensionContext) {
 function generateDescriptionFromP4Code(p4Code: string): string {
 	const controlRegex = /control\s+(\w+)\s*\(/;
 	const tableRegex = /table\s+(\w+)\s*\{/;
-	const keyLineRegex = /\s*key\s*=\s*\{/;
-	const actionsLineRegex = /\s*actions\s*=\s*\{/;
-	const sizeRegex = /\s*size\s*=\s*(\d+)\s*;/;
-	const defaultActionRegex = /\s*default_action\s*=\s*(\w+)\s*;/;
 
 	let controls: { [key: string]: { tables: { [key: string]: { key: string[]; actions: string[]; size: string; default_action: string } } } } = {};
 
@@ -177,10 +173,6 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 	for (const line of lines) {
 		let controlMatch = controlRegex.exec(line);
 		let tableMatch = tableRegex.exec(line);
-		let keyLineMatch = keyLineRegex.exec(line);
-		let actionsLineMatch = actionsLineRegex.exec(line);
-		let sizeMatch = sizeRegex.exec(line);
-		let defaultActionMatch = defaultActionRegex.exec(line);
 
 		if (controlMatch) {
 			currentControl = controlMatch[1];
@@ -189,26 +181,38 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 			currentTable = tableMatch[1];
 			controls[currentControl].tables[currentTable] = { key: [], actions: [], size: '', default_action: '' };
 		} else if (currentControl && currentTable) {
-			if (keyLineMatch) {
+			if (line.includes('key')) {
 				parsingKeys = true;
-			} else if (actionsLineMatch) {
+			}
+			if (line.includes('actions')) {
 				parsingActions = true;
-			} else if (parsingKeys) {
-				if (line.trim() === '}') {
+			}
+
+			if (parsingKeys) {
+				let keyMatch = line.match(/([\w.]+)\s*:\s*(\w+)\s*;/);
+				if (keyMatch) {
+					controls[currentControl].tables[currentTable].key.push(`${keyMatch[1]}: ${keyMatch[2]}`);
+				}
+				if (line.includes('}')) {
 					parsingKeys = false;
-				} else {
-					controls[currentControl].tables[currentTable].key.push(line.trim());
 				}
 			} else if (parsingActions) {
-				if (line.trim() === '}') {
-					parsingActions = false;
-				} else {
-					controls[currentControl].tables[currentTable].actions.push(line.trim());
+				let actionMatch = line.match(/(\w+)\s*;/);
+				if (actionMatch) {
+					controls[currentControl].tables[currentTable].actions.push(actionMatch[1]);
 				}
-			} else if (sizeMatch) {
-				controls[currentControl].tables[currentTable].size = sizeMatch[1];
-			} else if (defaultActionMatch) {
-				controls[currentControl].tables[currentTable].default_action = defaultActionMatch[1];
+				if (line.includes('}')) {
+					parsingActions = false;
+				}
+			} else {
+				let sizeMatch = line.match(/size\s*=\s*(\d+)\s*;/);
+				let defaultActionMatch = line.match(/default_action\s*=\s*(\w+)\s*;/);
+
+				if (sizeMatch) {
+					controls[currentControl].tables[currentTable].size = sizeMatch[1];
+				} else if (defaultActionMatch) {
+					controls[currentControl].tables[currentTable].default_action = defaultActionMatch[1];
+				}
 			}
 		}
 	}
@@ -247,4 +251,4 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 	}
 
 	return description;
-}
+}	
