@@ -1,7 +1,28 @@
 import * as vscode from 'vscode';
 
+import { Configuration, OpenAIApi } from 'openai';
+
+const configuration = new Configuration({
+	apiKey: 'YOUR_API_KEY',
+});
+const openai = new OpenAIApi(configuration);
+
 export function activate(context: vscode.ExtensionContext) {
 	let panel: vscode.WebviewPanel | undefined;
+
+	const callOpenAI = async (input: string) => {
+		try {
+			const completion = await openai.createCompletion({
+				model: "text-davinci-003",
+				prompt: input,
+				max_tokens: 2048,
+			});
+			return completion.data.choices[0].text;
+		} catch (error: any) {
+			vscode.window.showErrorMessage(`Error calling OpenAI API: ${error.message}`);
+			return '';
+		}
+	};
 
 	const updateSystemDescription = () => {
 		const editor = vscode.window.activeTextEditor;
@@ -23,20 +44,42 @@ export function activate(context: vscode.ExtensionContext) {
 
 			if (!panel) {
 				panel = vscode.window.createWebviewPanel(
-					'plantUMLPreview',
+					'p4-analyst',
 					'System Description',
 					vscode.ViewColumn.Beside,
 					{
 						enableScripts: true, // Enable JavaScript in the WebView
 					}
 				);
+
+				// Handle messages from the WebView
+				panel.webview.onDidReceiveMessage(async (message) => {
+					if (message.command === 'callOpenAI') {
+						const input = message.text;
+						const openAIResult = await callOpenAI(input);
+						panel?.webview.postMessage({ command: 'displayOpenAIResult', text: openAIResult });
+					}
+				}, undefined, context.subscriptions);
 			}
 
 			const script = `
-                function displayUserInput() {
-                    const userInput = document.getElementById('user-input').value;
-                    document.getElementById('display-input').innerHTML = userInput;
-                }
+				const vscode = acquireVsCodeApi();
+
+				function callOpenAI() {
+				const userInput = document.getElementById('user-input').value;
+				vscode.postMessage({
+					command: 'callOpenAI',
+					text: userInput,
+				});
+				}
+			
+				window.addEventListener('message', (event) => {
+				const message = event.data;
+				if (message.command === 'displayOpenAIResult') {
+					const openAIResult = message.text;
+					document.getElementById('display-output').innerHTML = openAIResult;
+				}
+				});
             `;
 
 			panel.webview.html = `
@@ -61,9 +104,9 @@ export function activate(context: vscode.ExtensionContext) {
                 </style>
               </head>
               <body>
-                <input id="user-input" type="text" placeholder="Enter text here">
-                <button onclick="displayUserInput()">Debug this</button>
-                <p id="display-input"></p>
+				<input id="user-input" type="text" placeholder="Enter text here">
+				<button onclick="callOpenAI()">Debug this!</button>
+				<p id="display-output"></p>
                   ${description}
                 <script>${script}</script>
               </body>
