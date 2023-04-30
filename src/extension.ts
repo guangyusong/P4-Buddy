@@ -210,7 +210,8 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 
 				if (sizeMatch) {
 					controls[currentControl].tables[currentTable].size = sizeMatch[1];
-				} else if (defaultActionMatch) {
+				}
+				if (defaultActionMatch) {
 					controls[currentControl].tables[currentTable].default_action = defaultActionMatch[1];
 				}
 			}
