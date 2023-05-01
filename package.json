@@ -1,8 +1,8 @@
 {
   "name": "p4-buddy",
   "displayName": "P4 Buddy",
-  "description": "Generates system diagrams from P4 code using PlantUML",
-  "version": "0.0.3",
+  "description": "Generate system descriptions and troubleshoot P4 errors ",
+  "version": "0.0.4",
   "publisher": "GuangyuSong",
   "icon": "logo.png",
   "repository": {
