@@ -22,6 +22,18 @@ P4 Buddy is a Visual Studio Code extension designed to assist users in understan
 3. A new panel with the system description will open next to your P4 code.
 4. Enter any P4-related questions into the input box and click the "Debug this!" button to receive a technical answer from OpenAI's GPT-3.
 
+## Screenshots
+
+### Debug errors 1:
+![Example 1 screenshot](./examples/example1.png)
+
+### Explain code:
+![Example 2 screenshot](./examples/example2.png)
+
+### Parse tables:
+![Example 3 screenshot](./examples/example3.png)
+
+
 ## Example
 
 Let's assume you have a P4 file open in Visual Studio Code. To understand the code and get a system description:
