@@ -4,7 +4,7 @@
   "description": "Generates system diagrams from P4 code using PlantUML",
   "version": "0.0.2",
   "publisher": "GuangyuSong",
-  "icon": "icon.png",
+  "icon": "logo.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/guangyusong/p4buddy.git"
