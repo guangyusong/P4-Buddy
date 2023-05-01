@@ -1,9 +1,10 @@
 {
   "name": "p4-buddy",
-  "displayName": "p4-buddy",
+  "displayName": "P4 Buddy",
   "description": "Generates system diagrams from P4 code using PlantUML",
-  "version": "0.0.1",
-  "publisher": "Guangyu Song",
+  "version": "0.0.2",
+  "publisher": "GuangyuSong",
+  "icon": "icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/guangyusong/p4buddy.git"

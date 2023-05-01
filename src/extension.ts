@@ -126,7 +126,7 @@ export async function activate(context: vscode.ExtensionContext) {
               </head>
 			  <body>
 			  <div>
-				<textarea id="user-input" rows="3" cols="50" placeholder="Enter text here"></textarea>
+				<textarea id="user-input" rows="3" cols="50" placeholder="Paste console error or a question here"></textarea>
 				<br>
 				<button onclick="callOpenAI()">Debug this!</button>
 			  </div>
