@@ -40,7 +40,11 @@ export async function activate(context: vscode.ExtensionContext) {
 			});
 			return completion.data.choices[0].text;
 		} catch (error: any) {
-			vscode.window.showErrorMessage(`Error calling OpenAI API: ${error.message}`);
+			if (error.message.includes("API key")) {
+				vscode.window.showErrorMessage(`Invalid OpenAI API key: ${error.message}`);
+			} else {
+				vscode.window.showErrorMessage(`Error calling OpenAI API: ${error.message}`);
+			}
 			return '';
 		}
 	};
@@ -232,7 +236,6 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 				description += `    <th>Property</th>`;
 				description += `    <th>Value</th>`;
 				description += `  </tr>`;
-				description += `  <tr>`;
 				description += `    <td>Key</td>`;
 				description += `    <td>${controls[control].tables[table].key.join(', ')}</td>`;
 				description += `  </tr>`;
