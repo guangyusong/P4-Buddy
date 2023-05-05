@@ -3,9 +3,28 @@ import * as vscode from 'vscode';
 import { Configuration, OpenAIApi } from 'openai';
 
 function getActionCode(p4Code: string, actionName: string): string {
-	const actionRegex = new RegExp(`action\\s+${actionName}\\s*\\((?:.|\\s)*?\\}\\s*`, 'm');
-	const actionMatch = actionRegex.exec(p4Code);
-	return actionMatch ? actionMatch[0] : `Action code for '${actionName}' not found.`;
+	const actionStartRegex = new RegExp(`action\\s+${actionName}\\s*\\((?:.|\\s)*?\\{`, 'm');
+	const actionStartMatch = actionStartRegex.exec(p4Code);
+	if (actionStartMatch) {
+		const actionStartPosition = actionStartMatch.index;
+		let braceCount = 1;
+		let actionEndPosition = actionStartPosition + actionStartMatch[0].length;
+
+		while (braceCount > 0 && actionEndPosition < p4Code.length) {
+			if (p4Code[actionEndPosition] === '{') {
+				braceCount++;
+			} else if (p4Code[actionEndPosition] === '}') {
+				braceCount--;
+			}
+			actionEndPosition++;
+		}
+
+		if (braceCount === 0) {
+			return p4Code.slice(actionStartPosition, actionEndPosition);
+		}
+	}
+
+	return `Action code for '${actionName}' not found.`;
 }
 
 function formatCode(code: string): string {
