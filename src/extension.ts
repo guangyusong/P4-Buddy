@@ -2,6 +2,12 @@ import * as vscode from 'vscode';
 
 import { Configuration, OpenAIApi } from 'openai';
 
+function getActionCode(p4Code: string, actionName: string): string {
+	const actionRegex = new RegExp(`action\\s+${actionName}\\s*\\((?:.|\\s)*?\\}\\s*`, 'm');
+	const actionMatch = actionRegex.exec(p4Code);
+	return actionMatch ? actionMatch[0] : `Action code for '${actionName}' not found.`;
+}
+
 export async function activate(context: vscode.ExtensionContext) {
 	let panel: vscode.WebviewPanel | undefined;
 
@@ -84,28 +90,46 @@ export async function activate(context: vscode.ExtensionContext) {
 						const openAIResult = await callOpenAI(input);
 						panel?.webview.postMessage({ command: 'displayOpenAIResult', text: openAIResult });
 					}
+
+					if (message.command === 'showCode') {
+						const actionName = message.text;
+						const actionCode = getActionCode(p4Code, actionName);
+						panel?.webview.postMessage({ command: 'displayActionCode', text: actionCode });
+					}
 				}, undefined, context.subscriptions);
 			}
 
 			const script = `
 				const vscode = acquireVsCodeApi();
-
+			
 				function callOpenAI() {
-				const userInput = document.getElementById('user-input').value;
-				vscode.postMessage({
-					command: 'callOpenAI',
-					text: userInput,
-				});
+					const userInput = document.getElementById('user-input').value;
+					vscode.postMessage({
+						command: 'callOpenAI',
+						text: userInput,
+					});
 				}
 			
 				window.addEventListener('message', (event) => {
-				const message = event.data;
-				if (message.command === 'displayOpenAIResult') {
-					const openAIResult = message.text;
-					document.getElementById('display-output').innerHTML = openAIResult;
-				}
+					const message = event.data;
+					if (message.command === 'displayOpenAIResult') {
+						const openAIResult = message.text;
+						document.getElementById('display-output').innerHTML = openAIResult;
+					}
+			
+					if (event.data.command === 'displayActionCode') {
+						const actionCode = event.data.text;
+						document.getElementById('action-code-display').innerText = actionCode;
+					}
 				});
-            `;
+			
+				function showCode(actionName) {
+					vscode.postMessage({
+						command: 'showCode',
+						text: actionName,
+					});
+				}
+			`;
 
 			panel.webview.html = `
             <!DOCTYPE html>
@@ -137,6 +161,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			  <p id="display-output"></p>
 			  ${description}
 			  <script>${script}</script>
+			  <p id="action-code-display"></p>
 			</body>			
             </html>
           `;
@@ -265,7 +290,7 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 		description += "<h3>Actions:</h3>";
 		description += "<ul>";
 		for (const actionFunction of actionFunctions) {
-			description += `<li>${actionFunction}</li>`;
+			description += `<li>${actionFunction} <button onclick="showCode('${actionFunction}')">Show Code</button></li>`;
 		}
 		description += "</ul>";
 	}
