@@ -165,6 +165,7 @@ export async function activate(context: vscode.ExtensionContext) {
 function generateDescriptionFromP4Code(p4Code: string): string {
 	const controlRegex = /control\s+(\w+)\s*\(/;
 	const tableRegex = /table\s+(\w+)\s*\{/;
+	const actionFunctionRegex = /action\s+(\w+)\s*\(/g;
 
 	let controls: { [key: string]: { tables: { [key: string]: { key: string[]; actions: string[]; size: string; default_action: string } } } } = {};
 
@@ -173,7 +174,11 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 	let currentTable = '';
 	let parsingKeys = false;
 	let parsingActions = false;
-
+	let actionFunctions: string[] = [];
+	let actionFunctionMatch;
+	while ((actionFunctionMatch = actionFunctionRegex.exec(p4Code)) !== null) {
+		actionFunctions.push(actionFunctionMatch[1]);
+	}
 	for (const line of lines) {
 		let controlMatch = controlRegex.exec(line);
 		let tableMatch = tableRegex.exec(line);
@@ -254,6 +259,15 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 				description += `</table>`;
 			}
 		}
+	}
+
+	if (actionFunctions.length > 0) {
+		description += "<h3>Actions:</h3>";
+		description += "<ul>";
+		for (const actionFunction of actionFunctions) {
+			description += `<li>${actionFunction}</li>`;
+		}
+		description += "</ul>";
 	}
 
 	return description;
