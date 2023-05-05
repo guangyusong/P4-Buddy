@@ -8,6 +8,10 @@ function getActionCode(p4Code: string, actionName: string): string {
 	return actionMatch ? actionMatch[0] : `Action code for '${actionName}' not found.`;
 }
 
+function formatCode(code: string): string {
+	return '<pre><code>' + code + '</code></pre>';
+}
+
 export async function activate(context: vscode.ExtensionContext) {
 	let panel: vscode.WebviewPanel | undefined;
 
@@ -94,7 +98,8 @@ export async function activate(context: vscode.ExtensionContext) {
 					if (message.command === 'showCode') {
 						const actionName = message.text;
 						const actionCode = getActionCode(p4Code, actionName);
-						panel?.webview.postMessage({ command: 'displayActionCode', text: actionCode });
+						const formattedActionCode = formatCode(actionCode);
+						panel?.webview.postMessage({ command: 'displayActionCode', text: formattedActionCode });
 					}
 				}, undefined, context.subscriptions);
 			}
@@ -119,7 +124,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			
 					if (event.data.command === 'displayActionCode') {
 						const actionCode = event.data.text;
-						document.getElementById('action-code-display').innerText = actionCode;
+						document.getElementById('action-code-display').innerHTML = actionCode;
 					}
 				});
 			
