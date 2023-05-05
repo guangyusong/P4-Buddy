@@ -2,6 +2,15 @@ import * as vscode from 'vscode';
 
 import { Configuration, OpenAIApi } from 'openai';
 
+function getActionCodeStartPosition(p4Code: string, actionName: string): number {
+	const actionStartRegex = new RegExp(`action\\s+${actionName}\\s*\\((?:.|\\s)*?\\{`, 'm');
+	const actionStartMatch = actionStartRegex.exec(p4Code);
+	if (actionStartMatch) {
+		return actionStartMatch.index;
+	}
+	return -1;
+}
+
 function getActionCode(p4Code: string, actionName: string): string {
 	const actionStartRegex = new RegExp(`action\\s+${actionName}\\s*\\((?:.|\\s)*?\\{`, 'm');
 	const actionStartMatch = actionStartRegex.exec(p4Code);
@@ -120,6 +129,42 @@ export async function activate(context: vscode.ExtensionContext) {
 						const formattedActionCode = formatCode(actionCode);
 						panel?.webview.postMessage({ command: 'displayActionCode', text: formattedActionCode });
 					}
+					if (message.command === 'goToTableCode') {
+						const tableName = message.text;
+						const tableRegex = new RegExp(`table\\s+${tableName}\\s*\\{`, 'm');
+						const tableMatch = tableRegex.exec(p4Code);
+						if (tableMatch) {
+							const tableStartPosition = tableMatch.index;
+							const tablePosition = document.positionAt(tableStartPosition);
+							editor.selection = new vscode.Selection(tablePosition, tablePosition);
+							editor.revealRange(editor.selection, vscode.TextEditorRevealType.InCenter);
+						} else {
+							vscode.window.showErrorMessage(`Table '${tableName}' not found.`);
+						}
+					}
+					if (message.command === 'goToControlCode') {
+						const controlName = message.text;
+						const controlRegex = new RegExp(`control\\s+${controlName}\\s*\\(`, 'm');
+						const controlMatch = controlRegex.exec(p4Code);
+						if (controlMatch) {
+							const controlStartPosition = controlMatch.index;
+							const controlPosition = document.positionAt(controlStartPosition);
+							editor.selection = new vscode.Selection(controlPosition, controlPosition);
+							editor.revealRange(editor.selection, vscode.TextEditorRevealType.InCenter);
+						} else {
+							vscode.window.showErrorMessage(`Control '${controlName}' not found.`);
+						}
+					} else if (message.command === 'goToActionCode') {
+						const actionName = message.text;
+						const actionStartPosition = getActionCodeStartPosition(p4Code, actionName);
+						if (actionStartPosition !== -1) {
+							const actionPosition = document.positionAt(actionStartPosition);
+							editor.selection = new vscode.Selection(actionPosition, actionPosition);
+							editor.revealRange(editor.selection, vscode.TextEditorRevealType.InCenter);
+						} else {
+							vscode.window.showErrorMessage(`Action '${actionName}' not found.`);
+						}
+					}
 				}, undefined, context.subscriptions);
 			}
 
@@ -153,6 +198,26 @@ export async function activate(context: vscode.ExtensionContext) {
 						text: actionName,
 					});
 				}
+
+				function goToTableCode(tableName) {
+					vscode.postMessage({
+						command: 'goToTableCode',
+						text: tableName,
+					});
+				}
+				function goToControlCode(controlName) {
+					vscode.postMessage({
+						command: 'goToControlCode',
+						text: controlName,
+					});
+				}
+				
+				function goToActionCode(actionName) {
+					vscode.postMessage({
+						command: 'goToActionCode',
+						text: actionName,
+					});
+				}								
 			`;
 
 			panel.webview.html = `
@@ -280,11 +345,11 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 
 	let description = "<h1>System components:</h1>";
 	for (const control in controls) {
-		description += `<h3>Control: ${control}</h3>`;
+		description += `<h3>Control: <a href="#" onclick="goToControlCode('${control}')">${control}</a></h3>`;
 		if (Object.keys(controls[control].tables).length > 0) {
 			description += "<h4>Tables:</h4>";
 			for (const table in controls[control].tables) {
-				description += `<h5>${table}</h5>`;
+				description += `<h5><a href="#" onclick="goToTableCode('${table}')">${table}</a></h5>`;
 				description += `<table border="1" cellspacing="0" cellpadding="4">`;
 				description += `  <tr>`;
 				description += `    <th>Property</th>`;
@@ -314,7 +379,7 @@ function generateDescriptionFromP4Code(p4Code: string): string {
 		description += "<h3>Actions:</h3>";
 		description += "<ul>";
 		for (const actionFunction of actionFunctions) {
-			description += `<li>${actionFunction} <button onclick="showCode('${actionFunction}')">Show Code</button></li>`;
+			description += `<li><a href="#" onclick="goToActionCode('${actionFunction}')">${actionFunction}</a> &nbsp <button onclick="showCode('${actionFunction}')">Show Code</button>`;
 		}
 		description += "</ul>";
 	}
